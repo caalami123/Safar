@@ -3,41 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
+<title>Safar Travel Admin</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://kit.fontawesome.com/a2e0b2e3a5.js" crossorigin="anonymous"></script>
 </head>
 <body>
-<header>
-  <h1>📊 Admin Dashboard</h1>
-</header>
 
-<div class="container">
-  <h2>Add Customer</h2>
-  <input id="name" placeholder="Customer Name">
-  <input id="email" placeholder="Email">
-  <input id="whatsapp" placeholder="WhatsApp (+25261...)">
-  <button onclick="addCustomer()">Add Customer</button>
+<!-- Toast Notification -->
+<div id="toast">
+  <span class="toast-icon"><i class="fas fa-info-circle"></i></span>
+  <span id="toastMessage"></span>
+</div>
 
-  <div class="stats">
-    <div>Total Customers: <span id="totalCustomers">0</span></div>
-    <div>Emails Sent: <span id="totalEmails">0</span></div>
-    <div>WhatsApp Sent: <span id="totalWA">0</span></div>
+<!-- Login Page -->
+<div id="loginPage">
+  <h1>Admin Login</h1>
+  <input id="adminUser" placeholder="Email" type="email">
+  <input id="adminPass" placeholder="Password" type="password">
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- Dashboard Page -->
+<div id="dashboardPage" class="hidden">
+  <div id="sidebar">
+    <a href="#" onclick="showTab('dashboardTab')">Dashboard</a>
+    <a href="#" onclick="showTab('customersTab')">Customers</a>
+    <a href="#" onclick="showTab('emailTab')">Email Campaign</a>
+    <a href="#" onclick="showTab('analysisTab')">Analytics</a>
+    <a href="#" onclick="showTab('settingsTab')">Settings</a>
+    <a href="#" onclick="logout()">Logout</a>
   </div>
+  <div id="content">
+    <h2 id="pageTitle">Dashboard</h2>
 
-  <h2>Customers</h2>
-  <table>
-    <thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Action</th></tr></thead>
-    <tbody id="customersTable"></tbody>
-  </table>
+    <div id="dashboardTab" class="tab active">
+      <p>Welcome to Safar Travel Admin Dashboard</p>
+    </div>
 
-  <h2>Bulk Email</h2>
-  <input id="emailSubject" placeholder="Subject">
-  <textarea id="emailMessage" rows="4" placeholder="Message"></textarea>
-  <button onclick="sendBulkEmail()">Send Email</button>
+    <div id="customersTab" class="tab">
+      <h3>Add Customer</h3>
+      <input id="name" placeholder="Name">
+      <input id="email" placeholder="Email">
+      <input id="whatsapp" placeholder="WhatsApp">
+      <button onclick="addCustomer()">Add</button>
+      <h3>Customer List (<span id="totalCustomers">0</span>)</h3>
+      <table id="customersTable"></table>
+    </div>
 
-  <h2>Bulk WhatsApp</h2>
-  <textarea id="waMessage" rows="4" placeholder="Message"></textarea>
-  <button onclick="sendBulkWhatsApp()">Send WhatsApp</button>
+    <div id="emailTab" class="tab">
+      <input id="campaignSubject" placeholder="Subject">
+      <textarea id="campaignMessage" placeholder="Message"></textarea>
+      <button onclick="sendCampaign()">Send Email to All</button>
+    </div>
+
+    <div id="analysisTab" class="tab">
+      <p>Analytics will go here</p>
+    </div>
+
+    <div id="settingsTab" class="tab">
+      <p>Settings Page</p>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="app.js"></script>
