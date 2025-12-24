@@ -1,84 +1,113 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-functions.js";
 
-// Firebase
-const firebaseConfig = {
+// Firebase config
+const firebaseConfig = { 
   apiKey: "AIzaSyCY2ZeJ4jJu-vPo_25ZNa1-pPeuVFxi9Ag",
   authDomain: "safar-1a4f5.firebaseapp.com",
-  projectId: "safar-1a4f5"
+  projectId: "safar-1a4f5",
+  storageBucket: "safar-1a4f5.firebasestorage.app",
+  messagingSenderId: "452916843428",
+  appId: "1:452916843428:web:ee027d2e3335fc98f8e731",
+  measurementId: "G-81DCXQY1LQ"
 };
+
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
-const customersCol = collection(db,"customers");
+const auth = getAuth(app);
+const functions = getFunctions();
+const customersCol = collection(db, "customers");
 
-// Check login
-onAuthStateChanged(auth,user=>{
-  if(!user) window.location="login.html";
-});
+// Callable function (Cloud Function) for sending email
+const sendEmailCampaign = httpsCallable(functions, 'sendEmailCampaign');
 
-// Customer CRUD
-window.addCustomer = async () => {
-  const name=document.getElementById("name").value;
-  const email=document.getElementById("email").value;
-  const whatsapp=document.getElementById("whatsapp").value;
-  if(!name||!email||!whatsapp){ alert("Fill all fields"); return; }
-  await addDoc(customersCol,{name,email,whatsapp,createdAt:serverTimestamp()});
-  loadCustomers(); updateStats();
-};
+// -------------------- Toast --------------------
+function showToast(message,type='success'){
+  const toast=document.getElementById('toast');
+  const toastMessage=document.getElementById('toastMessage');
+  const toastIcon=toast.querySelector('.toast-icon i');
+  toastMessage.textContent=message;
+  toastIcon.className=(type==='success')?'fas fa-check':
+                      (type==='error')?'fas fa-exclamation-triangle':'fas fa-info-circle';
+  toast.style.borderLeftColor=(type==='success')?'#4cc9f0':(type==='error')?'#f94144':'#4361ee';
+  toast.classList.add('show');
+  setTimeout(()=>{toast.classList.remove('show');},3000);
+}
 
-export async function loadCustomers(){
-  const snapshot = await getDocs(customersCol);
-  const table=document.getElementById("customersTable"); table.innerHTML="";
-  snapshot.forEach(docSnap=>{
-    const c=docSnap.data();
+// -------------------- Login / Logout --------------------
+async function login(){
+  const email=document.getElementById('adminUser').value;
+  const password=document.getElementById('adminPass').value;
+  if(!email || !password){showToast('Enter email & password','error');return;}
+  try{
+    const userCred=await signInWithEmailAndPassword(auth,email,password);
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('dashboardPage').classList.remove('hidden');
+    showToast(`Welcome, ${userCred.user.email.split('@')[0]}`);
+    loadCustomers();
+  }catch(err){console.error(err);showToast('Invalid credentials','error');}
+}
+
+async function logout(){
+  await signOut(auth);
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('dashboardPage').classList.add('hidden');
+  showToast('Logged out successfully');
+}
+
+// -------------------- Customers --------------------
+async function addCustomer(){
+  const name=document.getElementById('name').value;
+  const email=document.getElementById('email').value;
+  const whatsapp=document.getElementById('whatsapp').value;
+  if(!name||!email||!whatsapp){showToast('Fill all fields','error');return;}
+  await addDoc(customersCol,{name,email,whatsapp,createdAt:new Date()});
+  document.getElementById('name').value='';
+  document.getElementById('email').value='';
+  document.getElementById('whatsapp').value='';
+  loadCustomers();
+}
+
+async function loadCustomers(){
+  const snapshot=await getDocs(query(customersCol,orderBy('createdAt','desc')));
+  const table=document.getElementById('customersTable');
+  table.innerHTML='';
+  if(snapshot.empty){table.innerHTML='<tr><td colspan="4">No customers</td></tr>';return;}
+  snapshot.forEach(docu=>{
+    const c=docu.data();
     table.innerHTML+=`<tr>
       <td>${c.name}</td>
       <td>${c.email}</td>
       <td>${c.whatsapp}</td>
-      <td><button onclick="deleteCustomer('${docSnap.id}')">Delete</button></td>
+      <td><button onclick="deleteCustomer('${docu.id}')">Delete</button></td>
     </tr>`;
   });
 }
-window.deleteCustomer = async (id)=>{
-  await deleteDoc(doc(db,"customers",id));
-  loadCustomers(); updateStats();
-};
-window.updateStats = async ()=>{
-  const snapshot = await getDocs(customersCol);
-  document.getElementById("totalCustomers").innerText = snapshot.size;
-};
-loadCustomers(); updateStats();
 
-// EmailJS
-emailjs.init("kpOeovejkjSL4ehak");
-window.sendBulkEmail = async ()=>{
-  const subject=document.getElementById("emailSubject").value;
-  const message=document.getElementById("emailMessage").value;
-  if(!subject||!message){ alert("Enter subject & message"); return; }
-  const snapshot = await getDocs(customersCol);
-  for(const docSnap of snapshot.docs){
-    const c=docSnap.data();
-    await emailjs.send("SERVICE_ID","TEMPLATE_ID",{to_email:c.email,subject,message});
-  }
-  alert("All Emails Sent"); document.getElementById("totalEmails").innerText = snapshot.size;
-};
+window.deleteCustomer=async function(id){
+  if(!confirm('Delete this customer?'))return;
+  await deleteDoc(doc(db,'customers',id));
+  showToast('Customer deleted');
+  loadCustomers();
+}
 
-// WhatsApp call
-window.sendBulkWhatsApp = async ()=>{
-  const message=document.getElementById("waMessage").value;
-  if(!message){ alert("Enter WhatsApp message"); return; }
-  const snapshot = await getDocs(customersCol);
-  for(const docSnap of snapshot.docs){
-    const c=docSnap.data();
-    await fetch("YOUR_FUNCTION_URL/sendWhatsApp",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({number:c.whatsapp,message})
-    });
+// -------------------- Email Campaign --------------------
+window.sendCampaign=async function(){
+  const subject=document.getElementById('campaignSubject').value;
+  const message=document.getElementById('campaignMessage').value;
+  if(!subject||!message){showToast('Fill subject & message','error');return;}
+  const snapshot=await getDocs(customersCol);
+  for(const docu of snapshot.docs){
+    const c=docu.data();
+    await sendEmailCampaign({to:c.email,subject,message});
   }
-  alert("All WhatsApp messages sent");
-  document.getElementById("totalWA").innerText = snapshot.size;
+  showToast(`Email sent to ${snapshot.size} customers`);
+}
+
+// -------------------- Tabs --------------------
+window.showTab=function(tabID){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabID).classList.add('active');
 };
