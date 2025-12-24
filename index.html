@@ -4,39 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
-<style>
-body {font-family:Arial,sans-serif;margin:0;background:#f4f6f8;}
-header{background:#111827;color:#fff;padding:15px;text-align:center;}
-.container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:8px;}
-input, textarea, button{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;}
-button{background:#2563eb;color:#fff;border:none;cursor:pointer;}
-button:hover{background:#1d4ed8;}
-table{width:100%;border-collapse:collapse;margin-top:15px;}
-th,td{border:1px solid #ddd;padding:8px;text-align:left;}
-th{background:#f1f5f9;}
-.danger{background:#dc2626;}
-.danger:hover{background:#b91c1c;}
-.stats{display:flex;gap:20px;margin-top:15px;}
-.stat-box{flex:1;background:#2563eb;color:#fff;padding:10px;border-radius:6px;text-align:center;}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1>📊 Admin Dashboard</h1>
-  <p>Customers • Bulk Email • Bulk WhatsApp</p>
 </header>
 
 <div class="container">
   <h2>Add Customer</h2>
   <input id="name" placeholder="Customer Name">
-  <input id="email" placeholder="Email Address">
-  <input id="whatsapp" placeholder="WhatsApp Number (e.g +25261...)">
-  <button onclick="addCustomer()">➕ Add Customer</button>
+  <input id="email" placeholder="Email">
+  <input id="whatsapp" placeholder="WhatsApp (+25261...)">
+  <button onclick="addCustomer()">Add Customer</button>
 
   <div class="stats">
-    <div class="stat-box">Total Customers: <span id="totalCustomers">0</span></div>
-    <div class="stat-box">Emails Sent: <span id="totalEmails">0</span></div>
-    <div class="stat-box">WhatsApp Sent: <span id="totalWA">0</span></div>
+    <div>Total Customers: <span id="totalCustomers">0</span></div>
+    <div>Emails Sent: <span id="totalEmails">0</span></div>
+    <div>WhatsApp Sent: <span id="totalWA">0</span></div>
   </div>
 
   <h2>Customers</h2>
@@ -45,93 +30,16 @@ th{background:#f1f5f9;}
     <tbody id="customersTable"></tbody>
   </table>
 
-  <h2>📧 Bulk Email</h2>
-  <input id="emailSubject" placeholder="Email Subject">
-  <textarea id="emailMessage" rows="4" placeholder="Email Message"></textarea>
-  <button onclick="sendBulkEmail()">Send Email to All</button>
+  <h2>Bulk Email</h2>
+  <input id="emailSubject" placeholder="Subject">
+  <textarea id="emailMessage" rows="4" placeholder="Message"></textarea>
+  <button onclick="sendBulkEmail()">Send Email</button>
 
-  <h2>💬 Bulk WhatsApp</h2>
-  <textarea id="waMessage" rows="4" placeholder="WhatsApp Message"></textarea>
-  <button onclick="sendBulkWhatsApp()">Send WhatsApp to All</button>
+  <h2>Bulk WhatsApp</h2>
+  <textarea id="waMessage" rows="4" placeholder="Message"></textarea>
+  <button onclick="sendBulkWhatsApp()">Send WhatsApp</button>
 </div>
 
-<!-- Firebase + EmailJS -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCY2ZeJ4jJu-vPo_25ZNa1-pPeuVFxi9Ag",
-  authDomain: "safar-1a4f5.firebaseapp.com",
-  projectId: "safar-1a4f5",
-  storageBucket: "safar-1a4f5.firebasestorage.app",
-  messagingSenderId: "452916843428",
-  appId: "1:452916843428:web:ee027d2e3335fc98f8e731"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const customersCol = collection(db,"customers");
-
-async function updateStats(){
-  const snap = await getDocs(customersCol);
-  document.getElementById("totalCustomers").innerText = snap.size;
-}
-window.addCustomer = async () => {
-  const name=document.getElementById("name").value;
-  const email=document.getElementById("email").value;
-  const whatsapp=document.getElementById("whatsapp").value;
-  if(!name||!email||!whatsapp){alert("Fill all fields"); return;}
-  await addDoc(customersCol,{name,email,whatsapp,createdAt:serverTimestamp()});
-  document.getElementById("name").value="";document.getElementById("email").value="";document.getElementById("whatsapp").value="";
-  loadCustomers(); updateStats();
-};
-
-async function loadCustomers(){
-  const snapshot=await getDocs(customersCol);
-  const table=document.getElementById("customersTable"); table.innerHTML="";
-  snapshot.forEach(docSnap=>{
-    const c=docSnap.data();
-    table.innerHTML+=`<tr>
-      <td>${c.name}</td>
-      <td>${c.email}</td>
-      <td>${c.whatsapp}</td>
-      <td><button class="danger" onclick="deleteCustomer('${docSnap.id}')">Delete</button></td>
-    </tr>`;
-  });
-}
-window.deleteCustomer = async (id)=>{ await deleteDoc(doc(db,"customers",id)); loadCustomers(); updateStats(); }
-loadCustomers(); updateStats();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-emailjs.init("kpOeovejkjSL4ehak"); // PUBLIC_KEY
-
-async function sendBulkEmail(){
-  const snapshot = await getDocs(customersCol);
-  const subject = document.getElementById("emailSubject").value;
-  const message = document.getElementById("emailMessage").value;
-  if(!subject||!message){alert("Enter subject & message"); return;}
-  for(const docSnap of snapshot.docs){
-    const c=docSnap.data();
-    await emailjs.send("SERVICE_ID","TEMPLATE_ID",{to_email:c.email,subject,message})
-      .then(res=>console.log("Email sent to:",c.email))
-      .catch(err=>console.error("Failed:",c.email));
-  }
-  alert("All Emails Sent"); document.getElementById("totalEmails").innerText = snapshot.size;
-}
-
-/* Placeholder for WhatsApp: call Firebase Function backend */
-async function sendBulkWhatsApp(){
-  const snapshot = await getDocs(customersCol);
-  const message = document.getElementById("waMessage").value;
-  if(!message){alert("Enter WhatsApp message"); return;}
-  for(const docSnap of snapshot.docs){
-    const c=docSnap.data();
-    await fetch("YOUR_FUNCTION_URL/sendWhatsApp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:c.whatsapp,message})});
-  }
-  alert("All WhatsApp messages sent"); document.getElementById("totalWA").innerText = snapshot.size;
-}
-</script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
