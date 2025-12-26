@@ -1,71 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Safar Travel Admin</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://kit.fontawesome.com/a2e0b2e3a5.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFAR TRAVEL - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .login-logo h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .login-logo p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-btn.active {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .role-btn i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .role-btn p {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .demo-accounts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .demo-accounts h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .role-btn {
+                padding: 12px 5px;
+            }
+            
+            .role-btn i {
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- Toast Notification -->
-<div id="toast">
-  <span class="toast-icon"><i class="fas fa-info-circle"></i></span>
-  <span id="toastMessage"></span>
-</div>
-
-<!-- Login Page -->
-<div id="loginPage">
-  <h1>Admin Login</h1>
-  <input id="adminUser" placeholder="Email" type="email">
-  <input id="adminPass" placeholder="Password" type="password">
-  <button onclick="login()">Login</button>
-</div>
-
-<!-- Dashboard Page -->
-<div id="dashboardPage" class="hidden">
-  <div id="sidebar">
-    <a href="#" onclick="showTab('dashboardTab')">Dashboard</a>
-    <a href="#" onclick="showTab('customersTab')">Customers</a>
-    <a href="#" onclick="showTab('emailTab')">Email Campaign</a>
-    <a href="#" onclick="showTab('analysisTab')">Analytics</a>
-    <a href="#" onclick="showTab('settingsTab')">Settings</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </div>
-  <div id="content">
-    <h2 id="pageTitle">Dashboard</h2>
-
-    <div id="dashboardTab" class="tab active">
-      <p>Welcome to Safar Travel Admin Dashboard</p>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1><i class="fas fa-plane"></i> SAFAR TRAVEL</h1>
+                <p>Travel Management System</p>
+            </div>
+            
+            <div class="role-selector">
+                <div class="role-btn active" id="agencyRoleBtn">
+                    <i class="fas fa-building"></i>
+                    <p>Agency Admin</p>
+                </div>
+                <div class="role-btn" id="mainRoleBtn">
+                    <i class="fas fa-user-shield"></i>
+                    <p>Main Admin</p>
+                </div>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required>
+                </div>
+                    
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+                </div>
+                    
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+            
+            <div class="demo-accounts">
+                <h4>How to Use:</h4>
+                <p>1. First login as Main Admin to create agencies</p>
+                <p>2. Then login as Agency Admin to manage records</p>
+                <p>3. All data is saved locally in your browser</p>
+            </div>
+        </div>
     </div>
 
-    <div id="customersTab" class="tab">
-      <h3>Add Customer</h3>
-      <input id="name" placeholder="Name">
-      <input id="email" placeholder="Email">
-      <input id="whatsapp" placeholder="WhatsApp">
-      <button onclick="addCustomer()">Add</button>
-      <h3>Customer List (<span id="totalCustomers">0</span>)</h3>
-      <table id="customersTable"></table>
-    </div>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAN21cSB2E0bS8Kr1EzHiAQHrxGFnzYP4U",
+            authDomain: "travel-agencies-c4ada.firebaseapp.com",
+            projectId: "travel-agencies-c4ada",
+            storageBucket: "travel-agencies-c4ada.firebasestorage.app",
+            messagingSenderId: "887042267838",
+            appId: "1:887042267838:web:da8cbe8fe0dbf025c65cef",
+            measurementId: "G-Z098TB9FKQ"
+        };
 
-    <div id="emailTab" class="tab">
-      <input id="campaignSubject" placeholder="Subject">
-      <textarea id="campaignMessage" placeholder="Message"></textarea>
-      <button onclick="sendCampaign()">Send Email to All</button>
-    </div>
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    <div id="analysisTab" class="tab">
-      <p>Analytics will go here</p>
-    </div>
+        // Role selection
+        document.getElementById('agencyRoleBtn').addEventListener('click', () => selectRole('agency'));
+        document.getElementById('mainRoleBtn').addEventListener('click', () => selectRole('main'));
 
-    <div id="settingsTab" class="tab">
-      <p>Settings Page</p>
-    </div>
-  </div>
-</div>
+        function selectRole(role) {
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (role === 'agency') {
+                document.getElementById('agencyRoleBtn').classList.add('active');
+            } else {
+                document.getElementById('mainRoleBtn').classList.add('active');
+            }
+        }
 
-<script type="module" src="app.js"></script>
+        // Login function
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.querySelector('.role-btn.active p').textContent.includes('Main') ? 'main' : 'agency';
+            
+            document.getElementById('errorMessage').textContent = '';
+            
+            try {
+                // Sign in with Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Get user data from Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // Create new user document if doesn't exist
+                    await db.collection('users').doc(user.uid).set({
+                        email: email,
+                        role: role,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    const userData = userDoc.data();
+                    
+                    // Check if role matches
+                    if (userData.role !== role) {
+                        await auth.signOut();
+                        document.getElementById('errorMessage').textContent = 
+                            `This account is registered as ${userData.role === 'main' ? 'Main Admin' : 'Agency Admin'}. Please select the correct role.`;
+                        return;
+                    }
+                }
+                
+                // Initialize local storage if needed
+                initializeLocalStorage(user.uid);
+                
+                // Save session
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: user.uid,
+                    email: email,
+                    role: role
+                }));
+                
+                // Redirect based on role
+                if (role === 'main') {
+                    window.location.href = 'main-admin.html';
+                } else {
+                    window.location.href = 'agency-admin.html';
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'No user found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'This account has been disabled.';
+                        break;
+                    default:
+                        errorMessage += 'Please check your credentials.';
+                }
+                
+                document.getElementById('errorMessage').textContent = errorMessage;
+                
+                // For development: auto-create account if doesn't exist
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        // Try to create new user
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        
+                        // Create user document
+                        await db.collection('users').doc(user.uid).set({
+                            email: email,
+                            role: role,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Initialize local storage
+                        initializeLocalStorage(user.uid);
+                        
+                        // Save session
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: user.uid,
+                            email: email,
+                            role: role
+                        }));
+                        
+                        // Redirect based on role
+                        if (role === 'main') {
+                            window.location.href = 'main-admin.html';
+                        } else {
+                            window.location.href = 'agency-admin.html';
+                        }
+                        
+                    } catch (createError) {
+                        document.getElementById('errorMessage').textContent = 
+                            'Failed to create account. Please use a valid email and password (at least 6 characters).';
+                    }
+                }
+            }
+        });
+
+        // Initialize local storage for user
+        function initializeLocalStorage(userId) {
+            const storageKey = `safar_data_${userId}`;
+            
+            if (!localStorage.getItem(storageKey)) {
+                const initialData = {
+                    agencies: [],
+                    transactions: [],
+                    payments: [],
+                    settings: {
+                        paymentMethods: [
+                            { id: 1, name: 'Cash', icon: 'fas fa-money-bill-wave' },
+                            { id: 2, name: 'Awash Bank', icon: 'fas fa-university' },
+                            { id: 3, name: 'CBE', icon: 'fas fa-university' },
+                            { id: 4, name: 'Abyssinia Bank', icon: 'fas fa-university' },
+                            { id: 5, name: 'ebirr', icon: 'fas fa-mobile-alt' },
+                            { id: 6, name: 'Telebirr', icon: 'fas fa-mobile-alt' },
+                            { id: 7, name: 'CBE Birr', icon: 'fas fa-mobile-alt' }
+                        ]
+                    }
+                };
+                
+                localStorage.setItem(storageKey, JSON.stringify(initialData));
+            }
+        }
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    if (userData.uid === user.uid) {
+                        if (userData.role === 'main') {
+                            window.location.href = 'main-admin.html';
+                        } else {
+                            window.location.href = 'agency-admin.html';
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pre-fill for testing (remove in production)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pre-fill with test email for convenience
+            // document.getElementById('loginEmail').value = 'test@example.com';
+        });
+    </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </body>
 </html>
