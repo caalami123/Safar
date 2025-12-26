@@ -1112,58 +1112,98 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Add agency form
-        document.getElementById('addAgencyForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            try {
-                const agencyName = document.getElementById('agencyName').value;
-                const adminEmail = document.getElementById('adminEmail').value;
-                const adminPassword = document.getElementById('adminPassword').value;
-                const phone = document.getElementById('agencyPhone').value;
-                const address = document.getElementById('agencyAddress').value;
-                const commission = document.getElementById('agencyCommission').value;
-                
-                // Create user in Firebase
-                const userCredential = await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-                const newUser = userCredential.user;
-                
-                // Save user role in Firestore
-                await db.collection('users').doc(newUser.uid).set({
-                    email: adminEmail,
-                    role: 'agency',
-                    agencyName: agencyName,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Save agency in local storage
-                const data = getLocalStorageData();
-                const newAgency = {
-                    id: generateId(),
-                    name: agencyName,
-                    adminEmail: adminEmail,
-                    adminUserId: newUser.uid,
-                    phone: phone,
-                    address: address,
-                    commissionRate: commission,
-                    status: 'Active',
-                    joinedDate: new Date().toLocaleDateString()
-                };
-                
-                data.agencies.push(newAgency);
-                saveLocalStorageData(data);
-                
-                alert('Agency created successfully!');
-                closeModal('addAgencyModal');
-                document.getElementById('addAgencyForm').reset();
-                loadDashboardData();
-                loadAgencies();
-                
-            } catch (error) {
-                console.error('Error creating agency:', error);
-                alert('Failed to create agency. Please try again.');
-            }
+        // In main-admin.html, update the add agency form submission:
+
+document.getElementById('addAgencyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        const agencyName = document.getElementById('agencyName').value;
+        const adminEmail = document.getElementById('adminEmail').value;
+        const adminPassword = document.getElementById('adminPassword').value;
+        const phone = document.getElementById('agencyPhone').value;
+        const address = document.getElementById('agencyAddress').value;
+        const commission = document.getElementById('agencyCommission').value;
+        
+        // Check if email already exists
+        const emailCheck = await db.collection('users').where('email', '==', adminEmail).get();
+        if (!emailCheck.empty) {
+            alert('This email is already registered. Please use a different email.');
+            return;
+        }
+        
+        // Create user in Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
+        const newUser = userCredential.user;
+        
+        // Save user role in Firestore
+        await db.collection('users').doc(newUser.uid).set({
+            email: adminEmail,
+            role: 'agency',
+            agencyName: agencyName,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.uid
         });
+        
+        // Save agency in local storage
+        const data = getLocalStorageData();
+        const newAgency = {
+            id: generateId(),
+            name: agencyName,
+            adminEmail: adminEmail,
+            adminUserId: newUser.uid,
+            phone: phone,
+            address: address,
+            commissionRate: commission,
+            status: 'Active',
+            joinedDate: new Date().toLocaleDateString('en-US'),
+            createdAt: new Date().toISOString()
+        };
+        
+        data.agencies.push(newAgency);
+        saveLocalStorageData(data);
+        
+        // Also create local storage for the agency admin
+        const agencyStorageKey = `safar_data_${newUser.uid}`;
+        const agencyInitialData = {
+            agencyId: newAgency.id,
+            transactions: [],
+            profile: {
+                name: agencyName,
+                email: adminEmail,
+                phone: phone,
+                address: address
+            }
+        };
+        localStorage.setItem(agencyStorageKey, JSON.stringify(agencyInitialData));
+        
+        alert(`Agency created successfully!\n\nAgency: ${agencyName}\nAdmin Email: ${adminEmail}\nPassword: ${adminPassword}\n\nPlease provide these credentials to the agency admin.`);
+        closeModal('addAgencyModal');
+        document.getElementById('addAgencyForm').reset();
+        loadDashboardData();
+        loadAgencies();
+        
+    } catch (error) {
+        console.error('Error creating agency:', error);
+        let errorMessage = 'Failed to create agency. ';
+        
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                errorMessage = 'Email already in use. Please use a different email.';
+                break;
+            case 'auth/invalid-email':
+                errorMessage = 'Invalid email address format.';
+                break;
+            case 'auth/weak-password':
+                errorMessage = 'Password is too weak. Please use at least 6 characters.';
+                break;
+            default:
+                errorMessage += 'Please try again.';
+        }
+        
+        alert(errorMessage);
+    }
+});
               // View agency
         function viewAgency(agencyId) {
             const data = getLocalStorageData();
