@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agency Admin - SAFAR TRAVEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* Main Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .nav-links i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Cards */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card-icon {
+            font-size: 30px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Forms */
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        select.form-control {
+            height: 46px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        /* Payment Method Icons */
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .payment-method i {
+            color: #3498db;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h2, .nav-links span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .nav-links a {
+                justify-content: center;
+                padding: 15px;
+            }
+            .nav-links i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-building"></i> <span id="agencyNameSidebar">Agency</span></h2>
+                <p>Agency Admin Panel</p>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#" class="active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li><a href="#" onclick="showSection('transactions')"><i class="fas fa-exchange-alt"></i> <span>Transactions</span></a></li>
+                <li><a href="#" onclick="showSection('reports')"><i class="fas fa-chart-bar"></i> <span>Reports</span></a></li>
+                <li><a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="sectionTitle">Agency Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userInitials">AA</div>
+                    <div>
+                        <div style="font-weight: bold;" id="userName">Agency Admin</div>
+                        <div style="font-size: 12px; color: #7f8c8d;" id="agencyNameHeader">Travel Agency</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section-content">
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <h3>Today's Sales</h3>
+                        <div class="value" id="todaySales">$0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>Monthly Revenue</h3>
+                        <div class="value" id="monthlyRevenue">$0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i class="fas fa-users"></i></div>
+                        <h3>Today's Customers</h3>
+                        <div class="value" id="todayCustomers">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i class="fas fa-percentage"></i></div>
+                        <h3>Profit Margin</h3>
+                        <div class="value" id="profitMargin">0%</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h2 style="margin-bottom: 20px;">Recent Transactions</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Service</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div id="transactions" class="section-content" style="display: none;">
+                <div class="header" style="background: transparent; padding: 0; box-shadow: none;">
+                    <h1>Transaction Management</h1>
+                    <button class="btn btn-success" onclick="showAddTransactionModal()"><i class="fas fa-plus"></i> Add Transaction</button>
+                </div>
+
+                <div class="table-container">
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                        <input type="text" id="searchTransaction" class="form-control" placeholder="Search by customer or service..." style="flex: 1;">
+                        <button class="btn btn-primary" onclick="searchTransactions()">Search</button>
+                        <button class="btn btn-warning" onclick="resetSearch()">Reset</button>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Service</th>
+                                <th>Selling Price</th>
+                                <th>Buying Price</th>
+                                <th>Expenses</th>
+                                <th>Profit</th>
+                                <th>Payment Method</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="section-content" style="display: none;">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 20px;">Financial Reports</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>From Date</label>
+                            <input type="date" id="reportFromDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>To Date</label>
+                            <input type="date" id="reportToDate" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Report Type</label>
+                            <select id="reportType" class="form-control">
+                                <option value="daily">Daily Summary</option>
+                                <option value="service">By Service Type</option>
+                                <option value="payment">By Payment Method</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+                    <button class="btn btn-success" onclick="exportToPDF()" style="margin-left: 10px;"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                    
+                    <div id="reportResults" style="margin-top: 30px;"></div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile" class="section-content" style="display: none;">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 20px;">Agency Profile</h2>
+                    
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="width: 100px; height: 100px; background: var(--secondary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3 id="profileAgencyName">Travel Agency</h3>
+                        <p style="color: #7f8c8d;">Joined: <span id="joinedDate">N/A</span></p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Agency Name</label>
+                            <input type="text" id="agencyNameInput" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email</label>
+                            <input type="email" id="agencyEmail" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="agencyPhone" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" id="agencyAddress" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 30px 0 15px;">Settings</h3>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="emailNotifications" checked> Email Notifications
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="smsNotifications"> SMS Alerts
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="autoBackup" checked> Auto Backup Data
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                    <button class="btn btn-warning" onclick="changePassword()" style="margin-left: 10px;">Change Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Transaction Modal -->
+    <div id="addTransactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Transaction</h2>
+                <button class="close-modal" onclick="closeModal('addTransactionModal')">&times;</button>
+            </div>
+            <form id="addTransactionForm">
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="customerName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Service Type</label>
+                    <select id="serviceType" class="form-control" required>
+                        <option value="Air Ticket">Air Ticket</option>
+                        <option value="Hotel Booking">Hotel Booking</option>
+                        <option value="Visa Processing">Visa Processing</option>
+                          <option value="Tour Package">Tour Package</option>
+                        <option value="Car Rental">Car Rental</option>
+                        <option value="Travel Insurance">Travel Insurance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Selling Price ($)</label>
+                        <input type="number" id="sellingPrice" class="form-control" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Buying Price ($)</label>
+                        <input type="number" id="buyingPrice" class="form-control" required step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Additional Expenses ($)</label>
+                    <input type="number" id="expenses" class="form-control" value="0" step="0.01" min="0">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod" class="form-control" required>
+                            <!-- Payment methods will be loaded dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction Date</label>
+                        <input type="date" id="transactionDate" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="transactionNotes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Commission Rate (%)</label>
+                        <input type="number" id="commissionRate" class="form-control" value="10" min="0" max="50" step="0.1">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Save Transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editTransactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Transaction</h2>
+                <button class="close-modal" onclick="closeModal('editTransactionModal')">&times;</button>
+            </div>
+            <form id="editTransactionForm">
+                <input type="hidden" id="editTransactionId">
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="editCustomerName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Service Type</label>
+                    <select id="editServiceType" class="form-control" required>
+                        <option value="Air Ticket">Air Ticket</option>
+                        <option value="Hotel Booking">Hotel Booking</option>
+                        <option value="Visa Processing">Visa Processing</option>
+                        <option value="Tour Package">Tour Package</option>
+                        <option value="Car Rental">Car Rental</option>
+                        <option value="Travel Insurance">Travel Insurance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Selling Price ($)</label>
+                        <input type="number" id="editSellingPrice" class="form-control" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Buying Price ($)</label>
+                        <input type="number" id="editBuyingPrice" class="form-control" required step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Additional Expenses ($)</label>
+                    <input type="number" id="editExpenses" class="form-control" value="0" step="0.01" min="0">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="editPaymentMethod" class="form-control" required>
+                            <!-- Payment methods will be loaded dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction Date</label>
+                        <input type="date" id="editTransactionDate" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="editTransactionNotes" class="form-control" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Update Transaction</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAN21cSB2E0bS8Kr1EzHiAQHrxGFnzYP4U",
+            authDomain: "travel-agencies-c4ada.firebaseapp.com",
+            projectId: "travel-agencies-c4ada",
+            storageBucket: "travel-agencies-c4ada.firebasestorage.app",
+            messagingSenderId: "887042267838",
+            appId: "1:887042267838:web:da8cbe8fe0dbf025c65cef",
+            measurementId: "G-Z098TB9FKQ"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Current user and agency data
+        let currentUser = null;
+        let agencyData = null;
+        let userFirestoreData = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const savedUser = localStorage.getItem('currentUser');
+            if (!savedUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(savedUser);
+            
+            if (currentUser.role !== 'agency') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load user data from Firestore
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (userDoc.exists) {
+                userFirestoreData = userDoc.data();
+                
+                // Set user info
+                document.getElementById('userName').textContent = currentUser.email;
+                document.getElementById('userInitials').textContent = getInitials(currentUser.email);
+                
+                if (userFirestoreData.agencyName) {
+                    document.getElementById('agencyNameSidebar').textContent = userFirestoreData.agencyName;
+                    document.getElementById('agencyNameHeader').textContent = userFirestoreData.agencyName;
+                    document.getElementById('profileAgencyName').textContent = userFirestoreData.agencyName;
+                }
+            }
+
+            // Load agency data from local storage
+            await loadAgencyData();
+            
+            // Set today's date for transaction form
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+            document.getElementById('reportFromDate').value = today;
+            document.getElementById('reportToDate').value = today;
+            
+            // Load payment methods
+            loadPaymentMethods();
+            
+            // Load dashboard data
+            loadDashboardData();
+            loadTransactions();
+            loadProfileData();
+            
+            // Close modal when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Get initials from email
+        function getInitials(email) {
+            return email.substring(0, 2).toUpperCase();
+        }
+
+        // Load agency data from local storage
+        async function loadAgencyData() {
+            // Get all main admin data to find this agency
+            const mainAdmins = await db.collection('users').where('role', '==', 'main').get();
+            
+            for (const mainAdmin of mainAdmins.docs) {
+                const mainAdminData = mainAdmin.data();
+                const storageKey = `safar_data_${mainAdmin.id}`;
+                const storedData = localStorage.getItem(storageKey);
+                
+                if (storedData) {
+                    const data = JSON.parse(storedData);
+                    // Find this agency in the main admin's data
+                    const agency = data.agencies.find(a => a.adminEmail === currentUser.email);
+                    
+                    if (agency) {
+                        agencyData = agency;
+                        
+                        // Update UI with agency info
+                        document.getElementById('agencyNameSidebar').textContent = agency.name;
+                        document.getElementById('agencyNameHeader').textContent = agency.name;
+                        document.getElementById('profileAgencyName').textContent = agency.name;
+                        
+                        // Load settings from main admin
+                        window.mainAdminSettings = data.settings;
+                        break;
+                    }
+                }
+            }
+            
+            if (!agencyData) {
+                console.log('Agency data not found in main admin storage');
+                // Create default agency data
+                agencyData = {
+                    id: generateId(),
+                    name: userFirestoreData.agencyName || 'My Agency',
+                    adminEmail: currentUser.email,
+                    status: 'Active',
+                    joinedDate: new Date().toLocaleDateString()
+                };
+            }
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update section title
+            const titles = {
+                'dashboard': 'Agency Dashboard',
+                'transactions': 'Transaction Management',
+                'reports': 'Financial Reports',
+                'profile': 'Agency Profile'
+            };
+            document.getElementById('sectionTitle').textContent = titles[sectionId] || 'Agency Dashboard';
+            
+            // Add active class to clicked nav link
+            event.currentTarget.classList.add('active');
+            
+            // Load section data if needed
+            if (sectionId === 'transactions') {
+                loadTransactions();
+            } else if (sectionId === 'dashboard') {
+                loadDashboardData();
+            }
+        }
+              // Load dashboard data
+        function loadDashboardData() {
+            const transactions = getAgencyTransactions();
+            const today = new Date().toLocaleDateString();
+            
+            // Calculate today's sales
+            const todayTransactions = transactions.filter(t => t.date === today);
+            let todaySales = 0;
+            todayTransactions.forEach(t => {
+                todaySales += parseFloat(t.sellingPrice || 0);
+            });
+            document.getElementById('todaySales').textContent = `$${todaySales.toFixed(2)}`;
+            
+            // Calculate monthly revenue (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const monthlyTransactions = transactions.filter(t => {
+                const transDate = new Date(t.date);
+                return transDate >= thirtyDaysAgo;
+            });
+            
+            let monthlyRevenue = 0;
+            monthlyTransactions.forEach(t => {
+                monthlyRevenue += parseFloat(t.sellingPrice || 0);
+            });
+            document.getElementById('monthlyRevenue').textContent = `$${monthlyRevenue.toFixed(2)}`;
+            
+            // Today's customers
+            document.getElementById('todayCustomers').textContent = todayTransactions.length;
+            
+            // Calculate profit margin
+            let totalProfit = 0;
+            let totalRevenue = 0;
+            transactions.forEach(t => {
+                const profit = (t.sellingPrice - t.buyingPrice - t.expenses) || 0;
+                totalProfit += profit;
+                totalRevenue += parseFloat(t.sellingPrice || 0);
+            });
+            
+            const profitMargin = totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : 0;
+            document.getElementById('profitMargin').textContent = `${profitMargin}%`;
+            
+            // Load recent transactions
+            const recentTable = document.getElementById('recentTransactions');
+            recentTable.innerHTML = '';
+            
+            const recentTransactions = transactions.slice(-10).reverse();
+            recentTransactions.forEach(transaction => {
+                const profit = (transaction.sellingPrice - transaction.buyingPrice - transaction.expenses) || 0;
+                const row = `
+                    <tr>
+                        <td>${transaction.customerName}</td>
+                        <td>${transaction.serviceType}</td>
+                        <td>$${parseFloat(transaction.sellingPrice || 0).toFixed(2)}</td>
+                        <td>
+                            <div class="payment-method">
+                                <i class="${getPaymentMethodIcon(transaction.paymentMethod)}"></i>
+                                <span>${transaction.paymentMethod}</span>
+                            </div>
+                        </td>
+                        <td>${transaction.date}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewTransaction('${transaction.id}')">View</button>
+                            <button class="btn btn-warning btn-sm" onclick="editTransaction('${transaction.id}')">Edit</button>
+                        </td>
+                    </tr>
+                `;
+                recentTable.innerHTML += row;
+            });
+        }
+
+        // Load all transactions
+        function loadTransactions() {
+            const transactions = getAgencyTransactions();
+            const table = document.getElementById('transactionsTable');
+            table.innerHTML = '';
+            
+            transactions.forEach(transaction => {
+                const profit = (transaction.sellingPrice - transaction.buyingPrice - transaction.expenses) || 0;
+                const row = `
+                    <tr>
+                        <td>${transaction.date}</td>
+                        <td>${transaction.customerName}</td>
+                        <td>${transaction.serviceType}</td>
+                        <td>$${parseFloat(transaction.sellingPrice || 0).toFixed(2)}</td>
+                        <td>$${parseFloat(transaction.buyingPrice || 0).toFixed(2)}</td>
+                        <td>$${parseFloat(transaction.expenses || 0).toFixed(2)}</td>
+                        <td>$${profit.toFixed(2)}</td>
+                        <td>
+                            <div class="payment-method">
+                                <i class="${getPaymentMethodIcon(transaction.paymentMethod)}"></i>
+                                <span>${transaction.paymentMethod}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewTransaction('${transaction.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-warning btn-sm" onclick="editTransaction('${transaction.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTransaction('${transaction.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+        }
+
+        // Search transactions
+        function searchTransactions() {
+            const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
+            const transactions = getAgencyTransactions();
+            const table = document.getElementById('transactionsTable');
+            table.innerHTML = '';
+            
+            const filteredTransactions = transactions.filter(t => 
+                t.customerName.toLowerCase().includes(searchTerm) || 
+                t.serviceType.toLowerCase().includes(searchTerm)
+            );
+            
+            filteredTransactions.forEach(transaction => {
+                const profit = (transaction.sellingPrice - transaction.buyingPrice - transaction.expenses) || 0;
+                const row = `
+                    <tr>
+                        <td>${transaction.date}</td>
+                        <td>${transaction.customerName}</td>
+                        <td>${transaction.serviceType}</td>
+                        <td>$${parseFloat(transaction.sellingPrice || 0).toFixed(2)}</td>
+                        <td>$${parseFloat(transaction.buyingPrice || 0).toFixed(2)}</td>
+                        <td>$${parseFloat(transaction.expenses || 0).toFixed(2)}</td>
+                        <td>$${profit.toFixed(2)}</td>
+                        <td>
+                            <div class="payment-method">
+                                <i class="${getPaymentMethodIcon(transaction.paymentMethod)}"></i>
+                                <span>${transaction.paymentMethod}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewTransaction('${transaction.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-warning btn-sm" onclick="editTransaction('${transaction.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTransaction('${transaction.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+        }
+
+        function resetSearch() {
+            document.getElementById('searchTransaction').value = '';
+            loadTransactions();
+        }
+
+        // Load payment methods
+        function loadPaymentMethods() {
+            const paymentSelect = document.getElementById('paymentMethod');
+            const editPaymentSelect = document.getElementById('editPaymentMethod');
+            
+            if (window.mainAdminSettings && window.mainAdminSettings.paymentMethods) {
+                paymentSelect.innerHTML = '';
+                editPaymentSelect.innerHTML = '';
+                
+                window.mainAdminSettings.paymentMethods.forEach(method => {
+                    const option = document.createElement('option');
+                    option.value = method.name;
+                    option.textContent = method.name;
+                    paymentSelect.appendChild(option.cloneNode(true));
+                    editPaymentSelect.appendChild(option);
+                });
+            } else {
+                // Default payment methods
+                const defaultMethods = [
+                    'Cash',
+                    'Awash Bank',
+                    'CBE',
+                    'Abyssinia Bank',
+                    'ebirr',
+                    'Telebirr',
+                    'CBE Birr'
+                ];
+                
+                defaultMethods.forEach(method => {
+                    const option = document.createElement('option');
+                    option.value = method;
+                    option.textContent = method;
+                    paymentSelect.appendChild(option.cloneNode(true));
+                    editPaymentSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Get payment method icon
+        function getPaymentMethodIcon(method) {
+            if (window.mainAdminSettings && window.mainAdminSettings.paymentMethods) {
+                const paymentMethod = window.mainAdminSettings.paymentMethods.find(p => p.name === method);
+                return paymentMethod ? paymentMethod.icon : 'fas fa-money-bill-wave';
+            }
+            return 'fas fa-money-bill-wave';
+        }
+
+        // Load profile data
+        function loadProfileData() {
+            if (agencyData) {
+                document.getElementById('agencyNameInput').value = agencyData.name || '';
+                document.getElementById('agencyEmail').value = agencyData.adminEmail || currentUser.email;
+                document.getElementById('agencyPhone').value = agencyData.phone || '';
+                document.getElementById('agencyAddress').value = agencyData.address || '';
+                document.getElementById('joinedDate').textContent = agencyData.joinedDate || 'N/A';
+                
+                // Load commission rate if available
+                if (agencyData.commissionRate) {
+                    document.getElementById('commissionRate').value = agencyData.commissionRate;
+                }
+            }
+            }
+              // Save profile
+        async function saveProfile() {
+            try {
+                // Update agency data
+                agencyData.name = document.getElementById('agencyNameInput').value;
+                agencyData.phone = document.getElementById('agencyPhone').value;
+                agencyData.address = document.getElementById('agencyAddress').value;
+                
+                // Update agency name in Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    agencyName: agencyData.name
+                });
+                
+                // Update UI
+                document.getElementById('agencyNameSidebar').textContent = agencyData.name;
+                document.getElementById('agencyNameHeader').textContent = agencyData.name;
+                document.getElementById('profileAgencyName').textContent = agencyData.name;
+                
+                // Save to main admin's local storage
+                await saveAgencyDataToMainAdmin();
+                
+                alert('Profile updated successfully!');
+                
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Failed to save profile. Please try again.');
+            }
+        }
+
+        // Change password
+        async function changePassword() {
+            const newPassword = prompt('Enter new password (min 6 characters):');
+            
+            if (newPassword && newPassword.length >= 6) {
+                try {
+                    await currentUser.updatePassword(newPassword);
+                    alert('Password changed successfully!');
+                } catch (error) {
+                    console.error('Error changing password:', error);
+                    alert('Failed to change password. Please try again.');
+                }
+            } else if (newPassword) {
+                alert('Password must be at least 6 characters long.');
+            }
+        }
+
+        // Generate report
+        function generateReport() {
+            const fromDate = document.getElementById('reportFromDate').value;
+            const toDate = document.getElementById('reportToDate').value;
+            const reportType = document.getElementById('reportType').value;
+            
+            const transactions = getAgencyTransactions();
+            let filteredTransactions = transactions;
+            
+            // Apply date filter
+            if (fromDate) {
+                filteredTransactions = filteredTransactions.filter(t => {
+                    const transDate = new Date(t.date);
+                    const filterFrom = new Date(fromDate);
+                    return transDate >= filterFrom;
+                });
+            }
+            
+            if (toDate) {
+                filteredTransactions = filteredTransactions.filter(t => {
+                    const transDate = new Date(t.date);
+                    const filterTo = new Date(toDate);
+                    return transDate <= filterTo;
+                });
+            }
+            
+            // Generate report based on type
+            let reportHTML = '<div class="table-container">';
+            reportHTML += `<h3>Report for ${agencyData.name}</h3>`;
+            reportHTML += `<p>Period: ${fromDate || 'All Time'} to ${toDate || 'Now'}</p>`;
+            
+            if (reportType === 'daily') {
+                // Group by date
+                const dailyData = {};
+                filteredTransactions.forEach(t => {
+                    if (!dailyData[t.date]) {
+                        dailyData[t.date] = { count: 0, total: 0, profit: 0 };
+                    }
+                    dailyData[t.date].count++;
+                    dailyData[t.date].total += parseFloat(t.sellingPrice || 0);
+                    dailyData[t.date].profit += (t.sellingPrice - t.buyingPrice - t.expenses) || 0;
+                });
+                
+                reportHTML += '<h4>Daily Summary</h4><table><thead><tr><th>Date</th><th>Transactions</th><th>Total Sales</th><th>Total Profit</th></tr></thead><tbody>';
+                for (const [date, stats] of Object.entries(dailyData)) {
+                    reportHTML += `<tr><td>${date}</td><td>${stats.count}</td><td>$${stats.total.toFixed(2)}</td><td>$${stats.profit.toFixed(2)}</td></tr>`;
+                }
+                reportHTML += '</tbody></table>';
+                
+            } else if (reportType === 'service') {
+                // Group by service type
+                const serviceData = {};
+                filteredTransactions.forEach(t => {
+                    if (!serviceData[t.serviceType]) {
+                        serviceData[t.serviceType] = { count: 0, total: 0, profit: 0 };
+                    }
+                    serviceData[t.serviceType].count++;
+                    serviceData[t.serviceType].total += parseFloat(t.sellingPrice || 0);
+                    serviceData[t.serviceType].profit += (t.sellingPrice - t.buyingPrice - t.expenses) || 0;
+                });
+                
+                reportHTML += '<h4>By Service Type</h4><table><thead><tr><th>Service</th><th>Transactions</th><th>Total Sales</th><th>Total Profit</th></tr></thead><tbody>';
+                for (const [service, stats] of Object.entries(serviceData)) {
+                    reportHTML += `<tr><td>${service}</td><td>${stats.count}</td><td>$${stats.total.toFixed(2)}</td><td>$${stats.profit.toFixed(2)}</td></tr>`;
+                }
+                reportHTML += '</tbody></table>';
+                
+            } else if (reportType === 'payment') {
+                // Group by payment method
+                const paymentData = {};
+                filteredTransactions.forEach(t => {
+                    if (!paymentData[t.paymentMethod]) {
+                        paymentData[t.paymentMethod] = { count: 0, total: 0 };
+                    }
+                    paymentData[t.paymentMethod].count++;
+                    paymentData[t.paymentMethod].total += parseFloat(t.sellingPrice || 0);
+                });
+                
+                reportHTML += '<h4>By Payment Method</h4><table><thead><tr><th>Payment Method</th><th>Transactions</th><th>Total Amount</th></tr></thead><tbody>';
+                for (const [method, stats] of Object.entries(paymentData)) {
+                    reportHTML += `<tr><td>${method}</td><td>${stats.count}</td><td>$${stats.total.toFixed(2)}</td></tr>`;
+                }
+                reportHTML += '</tbody></table>';
+            }
+            
+            // Add summary
+            let totalSales = 0;
+            let totalProfit = 0;
+            filteredTransactions.forEach(t => {
+                totalSales += parseFloat(t.sellingPrice || 0);
+                totalProfit += (t.sellingPrice - t.buyingPrice - t.expenses) || 0;
+            });
+            
+            reportHTML += `<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h4>Overall Summary</h4>
+                <p>Total Transactions: ${filteredTransactions.length}</p>
+                <p>Total Sales: $${totalSales.toFixed(2)}</p>
+                <p>Total Profit: $${totalProfit.toFixed(2)}</p>
+                <p>Profit Margin: ${totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(2) : 0}%</p>
+                <p style="margin-top: 10px; color: #7f8c8d;">
+                    Generated on: ${new Date().toLocaleDateString()}<br>
+                    Agency: ${agencyData.name}
+                </p>
+            </div>`;
+            
+            reportHTML += '</div>';
+            document.getElementById('reportResults').innerHTML = reportHTML;
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            alert('PDF export would be implemented here. In a real system, this would generate a downloadable PDF.');
+        }
+
+        // Modal functions
+        function showAddTransactionModal() {
+            document.getElementById('addTransactionModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Add transaction form
+        document.getElementById('addTransactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: generateId(),
+                agencyId: agencyData.id,
+                agencyName: agencyData.name,
+                customerName: document.getElementById('customerName').value,
+                serviceType: document.getElementById('serviceType').value,
+                sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                buyingPrice: parseFloat(document.getElementById('buyingPrice').value),
+                expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                date: document.getElementById('transactionDate').value,
+                notes: document.getElementById('transactionNotes').value,
+                commissionRate: parseFloat(document.getElementById('commissionRate').value) || 10,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Calculate commission
+            const commission = (transaction.sellingPrice * transaction.commissionRate) / 100;
+            transaction.commission = commission;
+            
+            // Save transaction
+            saveTransaction(transaction);
+            
+            alert('Transaction added successfully!');
+            closeModal('addTransactionModal');
+            document.getElementById('addTransactionForm').reset();
+            
+            // Refresh data
+            loadDashboardData();
+            loadTransactions();
+        });
+
+        // Edit transaction
+        function editTransaction(transactionId) {
+            const transactions = getAgencyTransactions();
+            const transaction = transactions.find(t => t.id === transactionId);
+            
+            if (transaction) {
+                document.getElementById('editTransactionId').value = transaction.id;
+                document.getElementById('editCustomerName').value = transaction.customerName;
+                document.getElementById('editServiceType').value = transaction.serviceType;
+                document.getElementById('editSellingPrice').value = transaction.sellingPrice;
+                document.getElementById('editBuyingPrice').value = transaction.buyingPrice;
+                document.getElementById('editExpenses').value = transaction.expenses || 0;
+                document.getElementById('editPaymentMethod').value = transaction.paymentMethod;
+                document.getElementById('editTransactionDate').value = transaction.date;
+                document.getElementById('editTransactionNotes').value = transaction.notes || '';
+                
+                document.getElementById('editTransactionModal').classList.add('active');
+            }
+        }
+
+        // Edit transaction form
+        document.getElementById('editTransactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const transactionId = document.getElementById('editTransactionId').value;
+            const updatedTransaction = {
+                customerName: document.getElementById('editCustomerName').value,
+                serviceType: document.getElementById('editServiceType').value,
+                sellingPrice: parseFloat(document.getElementById('editSellingPrice').value),
+                buyingPrice: parseFloat(document.getElementById('editBuyingPrice').value),
+                expenses: parseFloat(document.getElementById('editExpenses').value) || 0,
+                paymentMethod: document.getElementById('editPaymentMethod').value,
+                date: document.getElementById('editTransactionDate').value,
+                notes: document.getElementById('editTransactionNotes').value
+            };
+            
+            // Update transaction
+            updateTransaction(transactionId, updatedTransaction);
+            
+            alert('Transaction updated successfully!');
+            closeModal('editTransactionModal');
+            
+            // Refresh data
+            loadDashboardData();
+            loadTransactions();
+        });
+
+        // View transaction
+        function viewTransaction(transactionId) {
+            const transactions = getAgencyTransactions();
+            const transaction = transactions.find(t => t.id === transactionId);
+            
+            if (transaction) {
+                const profit = (transaction.sellingPrice - transaction.buyingPrice - transaction.expenses) || 0;
+                const commission = transaction.commission || ((transaction.sellingPrice * 10) / 100);
+                
+                alert(`Transaction Details:\n\nCustomer: ${transaction.customerName}\nService: ${transaction.serviceType}\nSelling Price: $${transaction.sellingPrice}\nBuying Price: $${transaction.buyingPrice}\nExpenses: $${transaction.expenses || 0}\nProfit: $${profit.toFixed(2)}\nCommission: $${commission.toFixed(2)}\nPayment Method: ${transaction.paymentMethod}\nDate: ${transaction.date}\nNotes: ${transaction.notes || 'None'}`);
+            }
+        }
+
+        // Delete transaction
+        function deleteTransaction(transactionId) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                removeTransaction(transactionId);
+                loadDashboardData();
+                loadTransactions();
+                alert('Transaction deleted successfully!');
+            }
+        }
+
+        // Helper functions for transactions
+        function getAgencyTransactions() {
+            // Try to get from main admin's data first
+            const mainAdminData = getMainAdminData();
+            if (mainAdminData) {
+                return mainAdminData.transactions.filter(t => t.agencyId === agencyData.id);
+            }
+            
+            // Fallback to local storage
+            const storageKey = `agency_data_${currentUser.uid}`;
+            const data = localStorage.getItem(storageKey);
+            
+            if (!data) {
+                return [];
+            }
+            
+            return JSON.parse(data).transactions || [];
+        }
+
+        function saveTransaction(transaction) {
+            // Save to main admin's data
+            const mainAdminData = getMainAdminData();
+            if (mainAdminData) {
+                mainAdminData.transactions.push(transaction);
+                saveMainAdminData(mainAdminData);
+            }
+            
+            // Also save to agency's local storage
+            const storageKey = `agency_data_${currentUser.uid}`;
+            let agencyLocalData = localStorage.getItem(storageKey);
+            
+            if (!agencyLocalData) {
+                agencyLocalData = { transactions: [] };
+            } else {
+                agencyLocalData = JSON.parse(agencyLocalData);
+            }
+            
+            agencyLocalData.transactions.push(transaction);
+            localStorage.setItem(storageKey, JSON.stringify(agencyLocalData));
+        }
+
+        function updateTransaction(transactionId, updatedData) {
+            // Update in main admin's data
+            const mainAdminData = getMainAdminData();
+            if (mainAdminData) {
+                const index = mainAdminData.transactions.findIndex(t => t.id === transactionId);
+                if (index !== -1) {
+                    mainAdminData.transactions[index] = { ...mainAdminData.transactions[index], ...updatedData };
+                    saveMainAdminData(mainAdminData);
+                }
+            }
+            
+            // Update in agency's local storage
+            const storageKey = `agency_data_${currentUser.uid}`;
+            const agencyLocalData = JSON.parse(localStorage.getItem(storageKey) || '{"transactions": []}');
+            const localIndex = agencyLocalData.transactions.findIndex(t => t.id === transactionId);
+            
+            if (localIndex !== -1) {
+                agencyLocalData.transactions[localIndex] = { ...agencyLocalData.transactions[localIndex], ...updatedData };
+                localStorage.setItem(storageKey, JSON.stringify(agencyLocalData));
+            }
+        }
+
+        function removeTransaction(transactionId) {
+            // Remove from main admin's data
+            const mainAdminData = getMainAdminData();
+            if (mainAdminData) {
+                mainAdminData.transactions = mainAdminData.transactions.filter(t => t.id !== transactionId);
+                saveMainAdminData(mainAdminData);
+            }
+            
+            // Remove from agency's local storage
+            const storageKey = `agency_data_${currentUser.uid}`;
+            const agencyLocalData = JSON.parse(localStorage.getItem(storageKey) || '{"transactions": []}');
+            agencyLocalData.transactions = agencyLocalData.transactions.filter(t => t.id !== transactionId);
+            localStorage.setItem(storageKey, JSON.stringify(agencyLocalData));
+        }
+
+        // Helper functions for main admin data
+        function getMainAdminData() {
+            // This would need to find the main admin's data
+            // For now, we'll use a simplified approach
+            const allKeys = Object.keys(localStorage);
+            for (const key of allKeys) {
+                if (key.startsWith('safar_data_')) {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (data.agencies && data.agencies.find(a => a.adminEmail === currentUser.email)) {
+                        return data;
+                    }
+                }
+            }
+            return null;
+      }
+             function saveMainAdminData(data) {
+            const allKeys = Object.keys(localStorage);
+            for (const key of allKeys) {
+                if (key.startsWith('safar_data_')) {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    break;
+                }
+            }
+        }
+
+        async function saveAgencyDataToMainAdmin() {
+            const mainAdminData = getMainAdminData();
+            if (mainAdminData) {
+                // Update agency in main admin's data
+                const agencyIndex = mainAdminData.agencies.findIndex(a => a.adminEmail === currentUser.email);
+                if (agencyIndex !== -1) {
+                    mainAdminData.agencies[agencyIndex] = agencyData;
+                    saveMainAdminData(mainAdminData);
+                }
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</body>
+</html>
