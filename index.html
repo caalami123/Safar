@@ -108,6 +108,10 @@
             background: var(--secondary);
         }
 
+        .btn-success {
+            background: var(--success);
+        }
+
         .role-selector {
             display: flex;
             gap: 10px;
@@ -160,6 +164,22 @@
             text-align: center;
         }
 
+        .setup-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .setup-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .setup-link a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 480px) {
             .login-box {
                 padding: 30px 20px;
@@ -210,11 +230,16 @@
                 <div class="error-message" id="errorMessage"></div>
             </form>
             
+            <div class="setup-link">
+                <a href="setup.html" id="setupLink">First time? Setup Main Admin Account</a>
+            </div>
+            
             <div class="demo-accounts">
                 <h4>How to Use:</h4>
-                <p>1. First login as Main Admin to create agencies</p>
-                <p>2. Then login as Agency Admin to manage records</p>
-                <p>3. All data is saved locally in your browser</p>
+                <p>1. First time? Click "Setup Main Admin Account" link above</p>
+                <p>2. Create Main Admin account in setup page</p>
+                <p>3. Login as Main Admin to create agencies</p>
+                <p>4. Agency Admins can login with credentials created by Main Admin</p>
             </div>
         </div>
     </div>
@@ -273,36 +298,36 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // Create new user document if doesn't exist
-                    await db.collection('users').doc(user.uid).set({
-                        email: email,
-                        role: role,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    const userData = userDoc.data();
-                    
-                    // Check if role matches
-                    if (userData.role !== role) {
-                        await auth.signOut();
-                        document.getElementById('errorMessage').textContent = 
-                            `This account is registered as ${userData.role === 'main' ? 'Main Admin' : 'Agency Admin'}. Please select the correct role.`;
-                        return;
-                    }
+                    // User document doesn't exist
+                    await auth.signOut();
+                    document.getElementById('errorMessage').textContent = 
+                        'Account not found. Please contact administrator.';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                
+                // Check if role matches
+                if (userData.role !== role) {
+                    await auth.signOut();
+                    document.getElementById('errorMessage').textContent = 
+                        `This account is registered as ${userData.role === 'main' ? 'Main Admin' : 'Agency Admin'}. Please select the correct role.`;
+                    return;
                 }
                 
                 // Initialize local storage if needed
-                initializeLocalStorage(user.uid);
+                initializeLocalStorage(user.uid, userData.role);
                 
                 // Save session
                 localStorage.setItem('currentUser', JSON.stringify({
                     uid: user.uid,
                     email: email,
-                    role: role
+                    role: userData.role,
+                    name: userData.name || email
                 }));
                 
                 // Redirect based on role
-                if (role === 'main') {
+                if (userData.role === 'main') {
                     window.location.href = 'main-admin.html';
                 } else {
                     window.location.href = 'agency-admin.html';
@@ -314,71 +339,36 @@
                 
                 switch (error.code) {
                     case 'auth/user-not-found':
-                        errorMessage += 'No user found with this email.';
+                        errorMessage = 'User not found. Please check your email or contact administrator.';
                         break;
                     case 'auth/wrong-password':
-                        errorMessage += 'Incorrect password.';
+                        errorMessage = 'Incorrect password. Please try again.';
                         break;
                     case 'auth/invalid-email':
-                        errorMessage += 'Invalid email address.';
+                        errorMessage = 'Invalid email address format.';
                         break;
                     case 'auth/user-disabled':
-                        errorMessage += 'This account has been disabled.';
+                        errorMessage = 'This account has been disabled. Contact administrator.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed login attempts. Please try again later.';
                         break;
                     default:
-                        errorMessage += 'Please check your credentials.';
+                        errorMessage = 'Login failed. Please try again or contact administrator.';
                 }
                 
                 document.getElementById('errorMessage').textContent = errorMessage;
-                
-                // For development: auto-create account if doesn't exist
-                if (error.code === 'auth/user-not-found') {
-                    try {
-                        // Try to create new user
-                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                        const user = userCredential.user;
-                        
-                        // Create user document
-                        await db.collection('users').doc(user.uid).set({
-                            email: email,
-                            role: role,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        
-                        // Initialize local storage
-                        initializeLocalStorage(user.uid);
-                        
-                        // Save session
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            uid: user.uid,
-                            email: email,
-                            role: role
-                        }));
-                        
-                        // Redirect based on role
-                        if (role === 'main') {
-                            window.location.href = 'main-admin.html';
-                        } else {
-                            window.location.href = 'agency-admin.html';
-                        }
-                        
-                    } catch (createError) {
-                        document.getElementById('errorMessage').textContent = 
-                            'Failed to create account. Please use a valid email and password (at least 6 characters).';
-                    }
-                }
             }
         });
 
         // Initialize local storage for user
-        function initializeLocalStorage(userId) {
+        function initializeLocalStorage(userId, role) {
             const storageKey = `safar_data_${userId}`;
             
             if (!localStorage.getItem(storageKey)) {
                 const initialData = {
                     agencies: [],
                     transactions: [],
-                    payments: [],
                     settings: {
                         paymentMethods: [
                             { id: 1, name: 'Cash', icon: 'fas fa-money-bill-wave' },
@@ -388,7 +378,9 @@
                             { id: 5, name: 'ebirr', icon: 'fas fa-mobile-alt' },
                             { id: 6, name: 'Telebirr', icon: 'fas fa-mobile-alt' },
                             { id: 7, name: 'CBE Birr', icon: 'fas fa-mobile-alt' }
-                        ]
+                        ],
+                        commissionRate: 10,
+                        currency: 'ETB'
                     }
                 };
                 
@@ -399,24 +391,49 @@
         // Check if user is already logged in
         auth.onAuthStateChanged((user) => {
             if (user) {
-                const savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    const userData = JSON.parse(savedUser);
-                    if (userData.uid === user.uid) {
-                        if (userData.role === 'main') {
-                            window.location.href = 'main-admin.html';
-                        } else {
-                            window.location.href = 'agency-admin.html';
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const savedUser = localStorage.getItem('currentUser');
+                        
+                        if (!savedUser) {
+                            // Initialize local storage and redirect
+                            initializeLocalStorage(user.uid, userData.role);
+                            
+                            localStorage.setItem('currentUser', JSON.stringify({
+                                uid: user.uid,
+                                email: user.email,
+                                role: userData.role,
+                                name: userData.name || user.email
+                            }));
+                            
+                            if (userData.role === 'main') {
+                                window.location.href = 'main-admin.html';
+                            } else {
+                                window.location.href = 'agency-admin.html';
+                            }
                         }
                     }
-                }
+                });
             }
         });
 
-        // Pre-fill for testing (remove in production)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pre-fill with test email for convenience
-            // document.getElementById('loginEmail').value = 'test@example.com';
+        // Check if setup is needed
+        window.addEventListener('load', async function() {
+            try {
+                // Check if any main admin exists
+                const adminCheck = await db.collection('users').where('role', '==', 'main').get();
+                
+                if (adminCheck.empty) {
+                    // No main admin exists, show setup link
+                    document.getElementById('setupLink').style.display = 'block';
+                } else {
+                    // Main admin exists, hide setup link
+                    document.getElementById('setupLink').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
         });
     </script>
     
@@ -425,4 +442,4 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </body>
-</html>
+    </html>
